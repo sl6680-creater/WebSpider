@@ -65,6 +65,7 @@ class JWXT(object):
         with open(filename, 'w') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerows(lst)
+            print('保存文件成功')
 
 
 n = 0   # 默认n=0为获取全部成绩,1-8代表获取相应学期成绩
