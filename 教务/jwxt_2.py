@@ -57,7 +57,7 @@ def getscores():
 
 
 def save_to_file(lst):
-    with open(lst[1][1]+'score.csv', 'w') as csvfile:
+    with open('score.csv', 'w') as csvfile:
         csv.writer(csvfile).writerows(lst)
     print('文件保存成功')
 
