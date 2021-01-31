@@ -62,7 +62,7 @@ class JWXT(object):
         lst.append('GPA={:.2f}'.format(GPA))
         lst[-1].split(' ')
         filename = 'all_score.csv' if n == 0 else lst[1][1]+'score.csv'
-        with open(filename, 'w') as csvfile:
+        with open(filename, 'w', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerows(lst)
             print('保存文件成功')
