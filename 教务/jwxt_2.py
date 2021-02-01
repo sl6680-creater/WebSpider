@@ -57,6 +57,11 @@ def getscores():
 
 
 def save_to_file(lst):
+    credit, GPA = 0, 0
+    for ls in lst[1:]:
+        credit += eval(ls[7])
+        GPA += eval(ls[7])*eval(ls[9])
+    lst.append('GPA={:.2f}'.format(GPA/credit))
     with open('score.csv', 'w') as csvfile:
         csv.writer(csvfile).writerows(lst)
     print('文件保存成功')
