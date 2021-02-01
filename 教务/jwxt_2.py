@@ -25,7 +25,7 @@ def login(usrAccount, usrPassword):
 
 def getscores():
     main_page = 'http://bkjx.wust.edu.cn/jsxsd/framework/xsMain.jsp'
-    browser.get(main_page)  # 更新url，进入登陆后的主页面
+    browser.get(main_page)  # 进入登陆后的主页面
     browser.switch_to.frame('Frame0')   # 跳转到子框架Frame0
     # 找到课程成绩查询对应标签
     grid = browser.find_element_by_class_name('cy_icon').find_elements_by_class_name('grid')[1]
@@ -57,12 +57,7 @@ def getscores():
 
 
 def save_to_file(lst):
-    credit, GPA = 0, 0
-    for ls in lst[1:]:
-        credit += eval(ls[7])
-        GPA += eval(ls[7])*eval(ls[9])
-    lst.append('GPA={:.2f}'.format(GPA/credit))
-    with open('score.csv', 'w', encoding='utf-8') as csvfile:
+    with open('score.csv', 'w') as csvfile:
         csv.writer(csvfile).writerows(lst)
     print('文件保存成功')
 

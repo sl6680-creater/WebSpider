@@ -62,17 +62,17 @@ class JWXT(object):
         lst.append('GPA={:.2f}'.format(GPA))
         lst[-1].split(' ')
         filename = 'all_score.csv' if n == 0 else lst[1][1]+'score.csv'
-        with open(filename, 'w', encoding='utf-8') as csvfile:
+        with open(filename, 'w') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerows(lst)
             print('保存文件成功')
 
 
-n = 0   # 默认n=0为获取全部成绩,1-8代表获取相应学期成绩
 if __name__ == '__main__':
     jwxt = JWXT()
     usrAccount = input('学号：')
     usrPassword = input('密码：')
+    # 默认n=0为获取全部成绩,1-8代表获取相应学期成绩
     n = int(input('查询学期(0代表全部成绩)：'))
     jwxt.login(usrAccount, usrPassword)
     jwxt.save_to_file()
