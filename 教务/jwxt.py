@@ -1,7 +1,9 @@
+"""使用requests连接教务网站获取成绩"""
 import requests
 import base64
 from pyquery import PyQuery as pd
 import csv
+import pymongo
 
 class JWXT(object):
     def __init__(self):
@@ -21,6 +23,7 @@ class JWXT(object):
         self.session = requests.Session()   # 用Session维持会话，同时不必对cookies进行处理
 
     def login(self, usr, psd):  # 登录教务系统
+        """post请求提交学号和密码"""
         # 学号和密码进行base64加密
         usrid = base64.b64encode(bytes(usr, encoding='utf-8')).decode('ascii')
         usrpsd = base64.b64encode(bytes(psd, encoding='utf-8')).decode('ascii')
@@ -43,6 +46,7 @@ class JWXT(object):
             return None
 
     def save_to_file(self):
+        """分析html源码，对信息进行提取并保存到csv文件中"""
         doc = pd(self.getHTML(n)) if self.getHTML(n) is not None else ''
         tr_items = doc('tr').items()
         lst = []
@@ -62,10 +66,44 @@ class JWXT(object):
         lst.append('GPA={:.2f}'.format(GPA))
         lst[-1].split(' ')
         filename = 'all_score.csv' if n == 0 else lst[1][1]+'score.csv'
-        with open(filename, 'w') as csvfile:
+        with open(filename, 'w', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerows(lst)
             print('保存文件成功')
+
+    def save_to_mongo(self):
+        """对html源码进行分析并提取有效信息，保存到mongodb中"""
+        term = ['全部成绩', '2019-2020-1', '2019-2020-2', '2020-2021-1', '2020-2021-2',
+                '2021-2022-1', '2021-2022-2', '2022-2023-1', '2022-2023-2']
+        doc = pd(self.getHTML(n)) if self.getHTML(n) is not None else ''
+        tr_items = doc('tr').items()
+        lst, flag = [], -1
+        for tr in tr_items:
+            flag += 1
+            if flag > 0:
+                dic = {
+                    '序号': tr('td:nth-child(1)').text(),
+                    '开课学期': tr('td:nth-child(2)').text(),
+                    '课程编号': tr('td:nth-child(3)').text(),
+                    '课程名称': tr('td:nth-child(4)').text(),
+                    '分组名': tr('td:nth-child(5)').text(),
+                    '成绩': tr('td:nth-child(6)').text(),
+                    '学分': tr('td:nth-child(8)').text(),
+                    '总学时': tr('td:nth-child(9)').text(),
+                    '绩点': tr('td:nth-child(10)').text(),
+                    '考核方式': tr('td:nth-child(12)').text(),
+                    '考试性质': tr('td:nth-child(13)').text(),
+                    '课程性质': tr('td:nth-child(14)').text()
+                }
+                lst.append(dic)
+        MONGO_COLLECTION = term[n]
+        client = pymongo.MongoClient('localhost')
+        db = client['jwxt']
+        try:
+            if db[MONGO_COLLECTION].insert_many(lst):
+                print('保存到MongoDB成功')
+        except:
+            print('保存到MongoDB失败')
 
 
 if __name__ == '__main__':
